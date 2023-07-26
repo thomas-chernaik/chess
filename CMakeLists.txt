@@ -3,7 +3,7 @@ project(chess)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(chess main.cpp Graphics.cpp Graphics.h)
+add_executable(chess main.cpp Graphics.cpp Graphics.h input.cpp input.h)
 
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(chess

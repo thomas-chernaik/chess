@@ -4,6 +4,7 @@
 
 #ifndef CHESS_GRAPHICS_H
 #define CHESS_GRAPHICS_H
+
 #include <iostream>
 #include <SDL2/SDL.h>
 
@@ -12,21 +13,35 @@ struct Colour
     int r;
     int g;
     int b;
-    int a=255;
+    int a = 255;
 };
 
 
-class Graphics {
+class Graphics
+{
 public:
     Graphics(int width_, int height_);
+
     ~Graphics();
-    void sleep(int time);
+
+    static void sleep(int time);
+
     void colorScreen(Colour colour);
-    void renderSquare(float xPosition, float yPosition, float xScale, float yScale);
+
+    void renderSquare(float xPosition, float yPosition, float xScale, float yScale, Colour colour);
+
+    void display();
+
+    void renderBoard();
+    void highlightSquare(int x, int y);
+    std::pair<int, int> getSquareFromMousePos(int mouseX, int mouseY);
 
 protected:
-    SDL_Window *window;
-    SDL_Renderer *renderer;
+    SDL_Window *window{};
+    SDL_Renderer *renderer{};
+
+    void setColour(Colour colour);
+
     int height;
     int width;
 
