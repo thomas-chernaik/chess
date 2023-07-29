@@ -102,6 +102,8 @@ void Graphics::highlightSquare(int x, int y)
     renderTexture(x * 12.5, y * 12.5, 12.5, 12.5, highlight);
 }
 
+
+//a method to add a texture to the dictionary as a smart pointer
 void Graphics::loadTextureToDict(std::string key, const char *fileLocation)
 {
     SDL_Texture *text = IMG_LoadTexture(renderer, fileLocation);
@@ -131,11 +133,14 @@ void Graphics::loadTextures()
 
 }
 
+//a method to destroy all the textures that aren't smart
 void Graphics::unloadTextures()
 {
     SDL_DestroyTexture(highlight);
+
 }
 
+//a method to put render a texture in a rect (takes location as %, not px)
 void Graphics::renderTexture(float xPosition, float yPosition, float xScale, float yScale, SDL_Texture *texture)
 {
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -153,6 +158,7 @@ void Graphics::renderTexture(float xPosition, float yPosition, float xScale, flo
     SDL_RenderCopy(renderer, texture, NULL, &rect);
 }
 
+//a method to update the size of the render window, for when the user changes the window size
 void Graphics::updateSize(int w, int h)
 {
     width = w;
@@ -161,6 +167,7 @@ void Graphics::updateSize(int w, int h)
     SDL_RenderClear(renderer);
 }
 
+//a method to render a game state represented in an array of strings, where each element corresponds to one square, from the top left to right top to bottom.
 void Graphics::renderGame(std::string *game)
 {
     renderBoard();
@@ -178,6 +185,7 @@ void Graphics::renderGame(std::string *game)
     }
 }
 
+//another method to render a texture, now with padding! (in % not px)
 void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float xScale, float yScale, float xPadding,
                                         float yPadding, SDL_Texture *texture)
 {
@@ -193,7 +201,8 @@ void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float 
     yPadding *= fheight / 100.;
 
     //create the rectangle
-    SDL_Rect rect(ceil(xPosition+xPadding), ceil(yPosition+yPadding), ceil(xScale-2*xPadding), ceil(yScale-2*yPadding));
+    SDL_Rect rect(ceil(xPosition + xPadding), ceil(yPosition + yPadding), ceil(xScale - 2 * xPadding),
+                  ceil(yScale - 2 * yPadding));
     //render the texture in the rectangle
     SDL_RenderCopy(renderer, texture, NULL, &rect);
 }
