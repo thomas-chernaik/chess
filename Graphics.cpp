@@ -88,7 +88,6 @@ void Graphics::renderBoard()
         }
         isWhite = !isWhite;
     }
-    std::cout << anEighth;
 };
 
 //a method to get the square on the chess board from the mouse coord
@@ -172,9 +171,29 @@ void Graphics::renderGame(std::string *game)
         {
             if (game[count] != "")
             {
-                renderTexture(w * 12.5, h * 12.5, 12.5, 12.5, pieces[game[count]].get());
+                renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2, pieces[game[count]].get());
             }
             count++;
         }
     }
+}
+
+void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float xScale, float yScale, float xPadding,
+                                        float yPadding, SDL_Texture *texture)
+{
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    float fwidth = width;
+    float fheight = height;
+    //unNormalise the paramters
+    xPosition *= fwidth / 100.;
+    xScale *= fwidth / 100.;
+    yPosition *= fheight / 100.;
+    yScale *= fheight / 100.;
+    xPadding *= fwidth / 100.;
+    yPadding *= fheight / 100.;
+
+    //create the rectangle
+    SDL_Rect rect(ceil(xPosition+xPadding), ceil(yPosition+yPadding), ceil(xScale-2*xPadding), ceil(yScale-2*yPadding));
+    //render the texture in the rectangle
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
 }

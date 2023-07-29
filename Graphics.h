@@ -60,6 +60,7 @@ public:
     void renderSquare(float xPosition, float yPosition, float xScale, float yScale, Colour colour);
 
     void renderTexture(float xPosition, float yPosition, float xScale, float yScale, SDL_Texture *texture);
+    void renderTextureWithPadding(float xPosition, float yPosition, float xScale, float yScale, float xPadding, float yPadding, SDL_Texture *texture);
 
     void display();
 
