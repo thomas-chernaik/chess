@@ -65,15 +65,27 @@ Gamestate::Gamestate(Gamestate::boardGrid board_, bool white) : isWhite(white)
 
 Gamestate::boardGrid Gamestate::DisplayState()
 {
+
     return board;
 }
 
-std::string *Gamestate::GetNextGameState(move nextMove)
+void Gamestate::GetNextGameState(move nextMove)
 {
-    Gamestate *next;
     board[nextMove.newPosition.a][nextMove.newPosition.b].pieceType = board[nextMove.prevPosition.a][nextMove.prevPosition.b].pieceType;
+    std::cout << board[nextMove.newPosition.a][nextMove.newPosition.b].pieceType << "\n";
     board[nextMove.newPosition.a][nextMove.newPosition.b].isWhite = board[nextMove.prevPosition.a][nextMove.prevPosition.b].isWhite;
     board[nextMove.prevPosition.a][nextMove.prevPosition.b].pieceType = "empty";
-    next = new Gamestate(board, !isWhite);
+    std::cout << board[nextMove.newPosition.a][nextMove.newPosition.b].pieceType << "\n";
+}
 
+void Gamestate::DebugGameState()
+{
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            std::cout << board[i][j].isWhite << " " << board[i][j].pieceType << " ";
+        }
+        std::cout << "\n";
+    }
 }

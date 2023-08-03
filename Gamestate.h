@@ -43,7 +43,8 @@ public:
 
     bool IsCheckMate();
 
-    std::string *GetNextGameState(move nextMove);
+    void GetNextGameState(move nextMove);
+    void DebugGameState();
 
 protected:
     bool isWhite;

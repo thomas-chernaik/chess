@@ -27,7 +27,9 @@ int main()
                     int x, y;
                     x = g->getSquareFromMousePos(mouseX, mouseY).first;
                     y = g->getSquareFromMousePos(mouseX, mouseY).second;
-                    g->highlightSquare(x, y);
+                    gamestate->GetNextGameState(move(float2(0,0), float2(y,x)));
+                    g->renderGame(gamestate->DisplayState());
+                    //g->highlightSquare(x, y);
                     g->display();
                 }
             } else if(event.type == SDL_WINDOWEVENT)
@@ -38,7 +40,7 @@ int main()
                     int newHeight = event.window.data2;
                     int newSize = fmin(newHeight, newWidth);
                     g->updateSize(newSize, newSize);
-                    //g->renderGame(g->startState);
+                    g->renderGame(gamestate->DisplayState());
                     g->display();
                 }
 
