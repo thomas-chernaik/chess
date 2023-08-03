@@ -75,7 +75,7 @@ void Graphics::renderBoard()
     Colour blackColour = Colour(150, 50, 50);
     float anEighth = 12.5;
     //chess board is 8x8, so we need to render 64 squares in a grid.
-    bool isWhite = false;
+    bool isWhite = true;
     for (float x = 0; x < 8; x++)
     {
         for (float y = 0; y < 8; y++)
@@ -126,7 +126,7 @@ void Graphics::loadTextures()
     loadTextureToDict("whitebishop", "../textures/whitebishop.png");
     loadTextureToDict("whiteking", "../textures/whiteking.png");
     loadTextureToDict("whiteknight", "../textures/whiteknight.png");
-    loadTextureToDict("whitepawn", "../textures/whitpawn.png");
+    loadTextureToDict("whitepawn", "../textures/whitepawn.png");
     loadTextureToDict("whitequeen", "../textures/whitequeen.png");
     loadTextureToDict("whiterook", "../textures/whiterook.png");
 
@@ -168,19 +168,24 @@ void Graphics::updateSize(int w, int h)
 }
 
 //a method to render a game state represented in an array of strings, where each element corresponds to one square, from the top left to right top to bottom.
-void Graphics::renderGame(std::string *game)
+void Graphics::renderGame(Gamestate::boardGrid board)
 {
     renderBoard();
-    int count = 0;
-    for (int w = 0; w < 8; w++)
+    for (int h = 0; h < 8; h++)
     {
-        for (int h = 0; h < 8; h++)
+        for (int w = 0; w < 8; w++)
         {
-            if (game[count] != "")
+            if (board[h][w].pieceType != "")
             {
-                renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2, pieces[game[count]].get());
+                if(board[h][w].isWhite)
+                {
+                    renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2, pieces["white"+board[h][w].pieceType].get());
+                }
+                else
+                {
+                    renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2, pieces["black"+board[h][w].pieceType].get());
+                }
             }
-            count++;
         }
     }
 }

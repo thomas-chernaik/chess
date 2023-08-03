@@ -1,11 +1,13 @@
 #include <iostream>
 #include "Graphics.h"
-#define STARTSTATE =
 
 int main()
 {
+    Gamestate *gamestate = new Gamestate();
+
+
     Graphics *g = new Graphics(800, 800);
-    g->renderGame(g->startState);
+    g->renderGame(gamestate->DisplayState());
     g->display();
     SDL_Event event;
     bool quit = false;
@@ -36,7 +38,7 @@ int main()
                     int newHeight = event.window.data2;
                     int newSize = fmin(newHeight, newWidth);
                     g->updateSize(newSize, newSize);
-                    g->renderGame(g->startState);
+                    //g->renderGame(g->startState);
                     g->display();
                 }
 
@@ -44,5 +46,6 @@ int main()
             }
         }
     }
+    delete(g);
     return 0;
 }

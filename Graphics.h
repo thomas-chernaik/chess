@@ -10,6 +10,7 @@
 #include <SDL2/SDL_image.h>
 #include <map>
 #include <memory>
+#include "Gamestate.h"
 
 struct Colour
 {
@@ -60,11 +61,13 @@ public:
     void renderSquare(float xPosition, float yPosition, float xScale, float yScale, Colour colour);
 
     void renderTexture(float xPosition, float yPosition, float xScale, float yScale, SDL_Texture *texture);
-    void renderTextureWithPadding(float xPosition, float yPosition, float xScale, float yScale, float xPadding, float yPadding, SDL_Texture *texture);
+
+    void renderTextureWithPadding(float xPosition, float yPosition, float xScale, float yScale, float xPadding,
+                                  float yPadding, SDL_Texture *texture);
 
     void display();
 
-    void renderGame(std::string game[]);
+    void renderGame(Gamestate::boardGrid board);
 
     void renderBoard();
 
