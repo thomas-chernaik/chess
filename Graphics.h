@@ -71,7 +71,9 @@ public:
 
     void renderBoard();
 
-    void highlightSquare(int x, int y);
+    void highlightSquare(int2 square);
+
+    void highlightSquares(std::shared_ptr<int2[]> highlighted, int size);
 
     void updateSize(int w, int h);
 

@@ -89,3 +89,40 @@ void Gamestate::DebugGameState()
         std::cout << "\n";
     }
 }
+
+//get possible moves and the selected square as an array of int2s
+std::shared_ptr<int2[]> Gamestate::GetSquaresToHighlight()
+{
+    std::shared_ptr<int2[]> highlighted;
+    if (selectedSquare.operator==(int2(-1, -1)))
+    {
+        highlighted = std::shared_ptr<int2[]>(new int2[0]{});
+        return highlighted;
+    }
+    highlighted = std::shared_ptr<int2[]>(new int2[numPossibleMoves+1]);
+    highlighted[0] = selectedSquare;
+    for(int i=1; i<numPossibleMoves+1; i++)
+    {
+        highlighted[i] = possibleMoves[i-1].newPosition;
+    };
+    return highlighted;
+}
+
+bool int2::operator==(const int2 &rhs)
+{
+    return a == rhs.a && b == rhs.b;
+}
+
+void Gamestate::SelectSquare(int2 selected)
+{
+    if(board[selected.b][selected.a].pieceType == "empty" || board[selected.b][selected.a].isWhite != isWhite)
+    {
+        selectedSquare = int2(-1, -1);
+        return;
+    }
+    selectedSquare = selected;
+    possibleMoves = std::shared_ptr<move[]>(new move[1]);
+    possibleMoves[0] = move(selectedSquare, int2(0,0));
+    numPossibleMoves = 1;
+    numHighlighted = numPossibleMoves+1;
+}

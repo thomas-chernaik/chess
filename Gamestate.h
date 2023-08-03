@@ -14,10 +14,18 @@ struct float2
     float b = 0;
 };
 
+struct int2
+{
+    int a = 0;
+    int b = 0;
+
+    inline bool operator==(const int2 &rhs);
+};
+
 struct move
 {
-    float2 prevPosition;
-    float2 newPosition;
+    int2 prevPosition;
+    int2 newPosition;
 };
 
 //this can be made more efficient if needed later
@@ -30,25 +38,36 @@ struct square
 class Gamestate
 {
 public:
-    using boardGrid =  std::shared_ptr<std::shared_ptr<square[]>[]>;
+    using boardGrid = std::shared_ptr<std::shared_ptr<square[]>[]>;
+
     Gamestate(const boardGrid board_ = nullptr, bool white = true);
 
     ~Gamestate();
 
     boardGrid DisplayState();
 
-    move *GetPossibleMoves(float2 position);
+    std::shared_ptr<move> GetPossibleMoves();
 
     bool IsCheck();
 
     bool IsCheckMate();
 
     void GetNextGameState(move nextMove);
+
     void DebugGameState();
+
+    void SelectSquare(int2 selected);
+    int numHighlighted;
+
+    std::shared_ptr<move[]> possibleMoves;
+
+    std::shared_ptr<int2[]> GetSquaresToHighlight();
 
 protected:
     bool isWhite;
     boardGrid board;
+    int numPossibleMoves;
+    int2 selectedSquare = int2(-1, -1);
 
     move *GetPawnMoves(float2 position);
 

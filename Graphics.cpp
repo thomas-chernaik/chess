@@ -97,9 +97,9 @@ std::pair<int, int> Graphics::getSquareFromMousePos(int mouseX, int mouseY)
 }
 
 //a method to put a highlight on a square on the chess board
-void Graphics::highlightSquare(int x, int y)
+void Graphics::highlightSquare(int2 square)
 {
-    renderTexture(x * 12.5, y * 12.5, 12.5, 12.5, highlight);
+    renderTexture(square.a * 12.5, square.b * 12.5, 12.5, 12.5, highlight);
 }
 
 
@@ -210,4 +210,14 @@ void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float 
                   ceil(yScale - 2 * yPadding));
     //render the texture in the rectangle
     SDL_RenderCopy(renderer, texture, NULL, &rect);
+}
+
+void Graphics::highlightSquares(std::shared_ptr<int2[]> highlighted, int size)
+{
+    std::cout <<size;
+    for(int i=0; i<size; i++)
+    {
+        std::cout << i << "\n";
+        highlightSquare(highlighted[i]);
+    }
 }
