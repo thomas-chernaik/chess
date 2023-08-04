@@ -46,7 +46,7 @@ public:
 
     boardGrid DisplayState();
 
-    std::shared_ptr<move> GetPossibleMoves();
+    void GeneratePossibleMoves();
 
     bool IsCheck();
 
@@ -69,17 +69,17 @@ protected:
     int numPossibleMoves;
     int2 selectedSquare = int2(-1, -1);
 
-    move *GetPawnMoves(float2 position);
+    move *GetPawnMoves(int2 position);
 
-    move *GetRookMoves(float2 position);
+    move *GetRookMoves(int2 position);
 
-    move *GetKnightMoves(float2 position);
+    move *GetKnightMoves(int2 position);
 
-    move *GetBishopMoves(float2 position);
+    move *GetBishopMoves(int2 position);
 
-    move *GetQueenMoves(float2 position);
+    move *GetQueenMoves(int2 position);
 
-    move *GetKingMoves(float2 position);
+    move *GetKingMoves(int2 position);
 
 
 };

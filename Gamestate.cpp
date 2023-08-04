@@ -83,7 +83,7 @@ void Gamestate::GetNextGameState(move nextMove)
     //reset the selected piece
     numPossibleMoves = 0;
     numHighlighted = 0;
-    selectedSquare =  int2(-1,-1);
+    selectedSquare = int2(-1, -1);
 
 }
 
@@ -151,10 +151,41 @@ void Gamestate::SelectSquare(int2 selected)
     {
         //selecting a new square
         selectedSquare = selected;
-        possibleMoves = std::shared_ptr<move[]>(new move[1]);
-        possibleMoves[0] = move(selected, int2(0, 0));
-        numPossibleMoves = 1;
-        numHighlighted = numPossibleMoves + 1;
+        GeneratePossibleMoves();
     }
+
+}
+
+void Gamestate::GeneratePossibleMoves()
+{
+    //we need to call the correct move generator for the selected piece type
+    std::string selectedPieceType = board[selectedSquare.b][selectedSquare.a].pieceType;
+    if (selectedPieceType == "pawn")
+    {
+        GetPawnMoves(selectedSquare);
+    } else if (selectedPieceType == "rook")
+    {
+        GetRookMoves(selectedSquare);
+    } else if (selectedPieceType == "bishop")
+    {
+        GetBishopMoves(selectedSquare);
+    } else if (selectedPieceType == "knight")
+    {
+        GetKnightMoves(selectedSquare);
+    } else if (selectedPieceType == "king")
+    {
+        GetKingMoves(selectedSquare);
+    } else if (selectedPieceType == "queen")
+    {
+        GetQueenMoves(selectedSquare);
+    }
+    else
+    {
+        throw std::domain_error("the piece type is not valid");
+    }
+}
+
+move *Gamestate::GetPawnMoves(int2 position)
+{
 
 }
