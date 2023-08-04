@@ -214,6 +214,8 @@ void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float 
 
 void Graphics::highlightSquares(std::shared_ptr<int2[]> highlighted, int size)
 {
+    if(highlighted == nullptr)
+        return;
     std::cout <<size;
     for(int i=0; i<size; i++)
     {

@@ -57,7 +57,7 @@ public:
     void DebugGameState();
 
     void SelectSquare(int2 selected);
-    int numHighlighted;
+    int numPossibleMoves;
 
     std::shared_ptr<move[]> possibleMoves;
 
@@ -66,20 +66,19 @@ public:
 protected:
     bool isWhite;
     boardGrid board;
-    int numPossibleMoves;
     int2 selectedSquare = int2(-1, -1);
 
-    move *GetPawnMoves(int2 position);
+    std::shared_ptr<move[]> GetPawnMoves(int2 position);
 
-    move *GetRookMoves(int2 position);
+    std::shared_ptr<move[]> GetRookMoves(int2 position);
 
-    move *GetKnightMoves(int2 position);
+    std::shared_ptr<move[]> GetKnightMoves(int2 position);
 
-    move *GetBishopMoves(int2 position);
+    std::shared_ptr<move[]> GetBishopMoves(int2 position);
 
-    move *GetQueenMoves(int2 position);
+    std::shared_ptr<move[]> GetQueenMoves(int2 position);
 
-    move *GetKingMoves(int2 position);
+    std::shared_ptr<move[]> GetKingMoves(int2 position);
 
 
 };
