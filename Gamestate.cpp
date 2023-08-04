@@ -71,11 +71,20 @@ Gamestate::boardGrid Gamestate::DisplayState()
 
 void Gamestate::GetNextGameState(move nextMove)
 {
-    board[nextMove.newPosition.a][nextMove.newPosition.b].pieceType = board[nextMove.prevPosition.a][nextMove.prevPosition.b].pieceType;
+    std::cout << nextMove.prevPosition.a << " " << nextMove.newPosition.a;
+    //make the move
+    board[nextMove.newPosition.b][nextMove.newPosition.a].pieceType = board[nextMove.prevPosition.b][nextMove.prevPosition.a].pieceType;
     std::cout << board[nextMove.newPosition.a][nextMove.newPosition.b].pieceType << "\n";
-    board[nextMove.newPosition.a][nextMove.newPosition.b].isWhite = board[nextMove.prevPosition.a][nextMove.prevPosition.b].isWhite;
-    board[nextMove.prevPosition.a][nextMove.prevPosition.b].pieceType = "empty";
-    std::cout << board[nextMove.newPosition.a][nextMove.newPosition.b].pieceType << "\n";
+    board[nextMove.newPosition.b][nextMove.newPosition.a].isWhite = board[nextMove.prevPosition.b][nextMove.prevPosition.a].isWhite;
+    board[nextMove.prevPosition.b][nextMove.prevPosition.a].pieceType = "empty";
+    std::cout << board[nextMove.newPosition.b][nextMove.newPosition.a].pieceType << "\n";
+    //switch the iswhite
+    isWhite = !isWhite;
+    //reset the selected piece
+    numPossibleMoves = 0;
+    numHighlighted = 0;
+    selectedSquare =  int2(-1,-1);
+
 }
 
 void Gamestate::DebugGameState()
@@ -99,11 +108,11 @@ std::shared_ptr<int2[]> Gamestate::GetSquaresToHighlight()
         highlighted = std::shared_ptr<int2[]>(new int2[0]{});
         return highlighted;
     }
-    highlighted = std::shared_ptr<int2[]>(new int2[numPossibleMoves+1]);
+    highlighted = std::shared_ptr<int2[]>(new int2[numPossibleMoves + 1]);
     highlighted[0] = selectedSquare;
-    for(int i=1; i<numPossibleMoves+1; i++)
+    for (int i = 1; i < numPossibleMoves + 1; i++)
     {
-        highlighted[i] = possibleMoves[i-1].newPosition;
+        highlighted[i] = possibleMoves[i - 1].newPosition;
     };
     return highlighted;
 }
@@ -115,14 +124,37 @@ bool int2::operator==(const int2 &rhs)
 
 void Gamestate::SelectSquare(int2 selected)
 {
-    if(board[selected.b][selected.a].pieceType == "empty" || board[selected.b][selected.a].isWhite != isWhite)
+    //if we have a piece selected, we want to see if this is selecting a different piece or attempting to make a move
+    if (board[selected.b][selected.a].pieceType == "empty" || board[selected.b][selected.a].isWhite != isWhite)
     {
-        selectedSquare = int2(-1, -1);
-        return;
+        //now we need to see if the square that has been selected is a possible move
+        int moveIndex = -1;
+        for (int i = 0; i < numPossibleMoves; i++)
+        {
+            if (selected.operator==(possibleMoves[i].newPosition))
+            {
+                moveIndex = i;
+                break;
+            }
+        }
+        //if the move isn't valid, simply deselect the selected square
+        if (moveIndex == -1)
+        {
+            selectedSquare = int2(-1, -1);
+            numHighlighted = 0;
+        } else
+        {
+            //make the move
+            GetNextGameState(possibleMoves[moveIndex]);
+        }
+    } else
+    {
+        //selecting a new square
+        selectedSquare = selected;
+        possibleMoves = std::shared_ptr<move[]>(new move[1]);
+        possibleMoves[0] = move(selected, int2(0, 0));
+        numPossibleMoves = 1;
+        numHighlighted = numPossibleMoves + 1;
     }
-    selectedSquare = selected;
-    possibleMoves = std::shared_ptr<move[]>(new move[1]);
-    possibleMoves[0] = move(selectedSquare, int2(0,0));
-    numPossibleMoves = 1;
-    numHighlighted = numPossibleMoves+1;
+
 }
