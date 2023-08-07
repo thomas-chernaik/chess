@@ -79,7 +79,7 @@ protected:
     std::shared_ptr<move[]> GetQueenMoves(int2 position);
 
     std::shared_ptr<move[]> GetKingMoves(int2 position);
-
+    bool isOnBoard(int2 pos);
 
 };
 

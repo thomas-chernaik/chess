@@ -175,13 +175,13 @@ void Gamestate::GeneratePossibleMoves()
         {
             numPossibleMoves = 0;
         }
-    } /*else if (selectedPieceType == "bishop")
+    } else if (selectedPieceType == "bishop")
     {
         possibleMoves = GetBishopMoves(selectedSquare);
     } else if (selectedPieceType == "knight")
     {
         possibleMoves = GetKnightMoves(selectedSquare);
-    } else if (selectedPieceType == "king")
+    } /*else if (selectedPieceType == "king")
     {
         possibleMoves = GetKingMoves(selectedSquare);
     } else if (selectedPieceType == "queen")
@@ -193,6 +193,161 @@ void Gamestate::GeneratePossibleMoves()
         throw std::domain_error("the piece type is not valid");
     }*/
 }
+
+bool Gamestate::isOnBoard(int2 pos)
+{
+    return pos.a >= 0 && pos.a < 8 && pos.b >= 0 && pos.b < 8;
+}
+
+std::shared_ptr<move[]> Gamestate::GetKnightMoves(int2 position)
+{
+    //there are 8 possible knight moves
+    //I am putting these into hard variables to avoid the processing of dynamic memory allocation.
+    bool isPieceWhite = board[position.b][position.a].isWhite;
+    bool knightMoves[8];
+    knightMoves[0] = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//+2 +1
+    knightMoves[0] = isOnBoard(int2(position.a+1, position.b+2)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//+1 +2
+    knightMoves[0] = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//-1 +2
+    knightMoves[0] = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//-2 +1
+    knightMoves[0] = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//-2 -1
+    bool knightMove6 = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//-1 -2
+    bool knightMove7 = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//+2 -1
+    bool knightMove8 = isOnBoard(int2(position.a+2, position.b+1)) && board[position.b+1][position.a+1].isWhite != isPieceWhite;;//+1 -2
+
+
+}
+
+std::shared_ptr<move[]> Gamestate::GetBishopMoves(int2 position)
+{
+    //a bishop  can move it can move diagnoally until it reaches the edge or a piece
+    bool isPieceWhite = board[position.b][position.a].isWhite;
+    short int northEast = 0;
+    short int northWest = 0;
+    short int southEast = 0;
+    short int southWest = 0;
+    //get north east distance
+    for (int i = 1; i < 8; i++)
+    {
+        if (position.b + i < 8 && position.a + i < 8)
+        {
+            //check if we can move up to an empty piece
+            if (board[position.b + i][position.a + i].pieceType == "empty")
+                northEast += 1;
+                //check if we can move up to take a piece
+            else
+            {
+                if (board[position.b + i][position.a + i].isWhite != isPieceWhite)
+                {
+                    northEast += 1;
+                }
+                break;
+
+            }
+        } else
+        {
+            break;
+        }
+    }
+    //get north west distance
+    for (int i = 1; i < 8; i++)
+    {
+        if (position.b + i < 8 && position.a - i >= 0)
+        {
+            //check if we can move up to an empty piece
+            if (board[position.b + i][position.a - i].pieceType == "empty")
+                northWest += 1;
+                //check if we can move up to take a piece
+            else
+            {
+                if (board[position.b + i][position.a - i].isWhite != isPieceWhite)
+                {
+                    northWest += 1;
+                }
+                break;
+
+            }
+        } else
+        {
+            break;
+        }
+    }
+    //get south east distance
+    for (int i = 1; i < 8; i++)
+    {
+        if (position.b - i >= 0 && position.a + i < 8)
+        {
+            //check if we can move up to an empty piece
+            if (board[position.b - i][position.a + i].pieceType == "empty")
+                southEast += 1;
+                //check if we can move up to take a piece
+            else
+            {
+                if (board[position.b - i][position.a + i].isWhite != isPieceWhite)
+                {
+                    southEast += 1;
+                }
+                break;
+
+            }
+        } else
+        {
+            break;
+        }
+    }
+    //get south west distance
+    for (int i = 1; i < 8; i++)
+    {
+        if (position.b - i >= 0 && position.a - i >= 0)
+        {
+            //check if we can move up to an empty piece
+            if (board[position.b - i][position.a - i].pieceType == "empty")
+                southWest += 1;
+                //check if we can move up to take a piece
+            else
+            {
+                if (board[position.b - i][position.a - i].isWhite != isPieceWhite)
+                {
+                    southWest += 1;
+                }
+                break;
+
+            }
+        } else
+        {
+            break;
+        }
+    }
+    numPossibleMoves = southWest + southEast + northWest + northEast;
+    if (numPossibleMoves == 0)
+        return nullptr;
+    std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
+    for (int i = 1; i < southWest + 1; i++)
+    {
+        moves[i - 1].prevPosition = position;
+        moves[i - 1].newPosition = int2(position.a - i, position.b - i);
+
+    }
+    for (int i = 1; i < southEast + 1; i++)
+    {
+        moves[southWest + i - 1].prevPosition = position;
+        moves[southWest + i - 1].newPosition = int2(position.a + i, position.b - i);
+
+    }
+    for (int i = 1; i < northWest + 1; i++)
+    {
+        moves[southWest + southEast + i - 1].prevPosition = position;
+        moves[southWest + southEast + i - 1].newPosition = int2(position.a - i, position.b + i);
+
+    }
+    for (int i = 1; i < northEast + 1; i++)
+    {
+        moves[i - 1].prevPosition = position;
+        moves[i - 1].newPosition = int2(position.a + i, position.b + i);
+
+    }
+    return moves;
+}
+
 
 std::shared_ptr<move[]> Gamestate::GetRookMoves(int2 position)
 {
@@ -254,12 +409,12 @@ std::shared_ptr<move[]> Gamestate::GetRookMoves(int2 position)
         if (position.a + i < 8)
         {
             //check if we can move right to an empty piece
-            if (board[position.b][position.a+i].pieceType == "empty")
+            if (board[position.b][position.a + i].pieceType == "empty")
                 right += 1;
                 //check if we can move right to take a piece
             else
             {
-                if (board[position.b][position.a+i].isWhite != isPieceWhite)
+                if (board[position.b][position.a + i].isWhite != isPieceWhite)
                 {
                     right += 1;
                 }
@@ -277,12 +432,12 @@ std::shared_ptr<move[]> Gamestate::GetRookMoves(int2 position)
         if (position.a - i >= 0)
         {
             //check if we can move left to an empty piece
-            if (board[position.b][position.a-i].pieceType == "empty")
+            if (board[position.b][position.a - i].pieceType == "empty")
                 left += 1;
                 //check if we can move left to take a piece
             else
             {
-                if (board[position.b][position.a-i].isWhite != isPieceWhite)
+                if (board[position.b][position.a - i].isWhite != isPieceWhite)
                 {
                     left += 1;
                 }
@@ -294,29 +449,29 @@ std::shared_ptr<move[]> Gamestate::GetRookMoves(int2 position)
             break;
         }
     }
-    numPossibleMoves = up+down+left+right;
-    if(numPossibleMoves == 0)
+    numPossibleMoves = up + down + left + right;
+    if (numPossibleMoves == 0)
         return nullptr;
     std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
-    for(int i=1; i<=up; i++)
+    for (int i = 1; i <= up; i++)
     {
-        moves[i-1].prevPosition = position;
-        moves[i-1].newPosition = int2(position.a, position.b+i);
+        moves[i - 1].prevPosition = position;
+        moves[i - 1].newPosition = int2(position.a, position.b + i);
     }
-    for(int i=1; i<=down; i++)
+    for (int i = 1; i <= down; i++)
     {
-        moves[i+up-1].prevPosition = position;
-        moves[i+up-1].newPosition = int2(position.a, position.b-i);
+        moves[i + up - 1].prevPosition = position;
+        moves[i + up - 1].newPosition = int2(position.a, position.b - i);
     }
-    for(int i=1; i<=right; i++)
+    for (int i = 1; i <= right; i++)
     {
-        moves[i+up+down-1].prevPosition = position;
-        moves[i+up+down-1].newPosition = int2(position.a+i, position.b);
+        moves[i + up + down - 1].prevPosition = position;
+        moves[i + up + down - 1].newPosition = int2(position.a + i, position.b);
     }
-    for(int i=1; i<=left; i++)
+    for (int i = 1; i <= left; i++)
     {
-        moves[i+up+down+right-1].prevPosition = position;
-        moves[i+up+down+right-1].newPosition = int2(position.a-i, position.b);
+        moves[i + up + down + right - 1].prevPosition = position;
+        moves[i + up + down + right - 1].newPosition = int2(position.a - i, position.b);
     }
     return moves;
 }
