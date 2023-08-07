@@ -15,7 +15,9 @@ struct int2
     int b = 0;
 
     inline bool operator==(const int2 &rhs) const;
+
     inline int2 operator+(const int2 &rhs) const;
+
     inline int2 operator*(const int &rhs) const;
 };
 
@@ -37,7 +39,7 @@ class Gamestate
 public:
     using boardGrid = std::shared_ptr<std::shared_ptr<square[]>[]>;
 
-    explicit Gamestate(const boardGrid& board_ = nullptr, bool white = true);
+    explicit Gamestate(const boardGrid &board_ = nullptr, bool white = true);
 
 
     boardGrid DisplayState();
@@ -49,7 +51,8 @@ public:
     void DebugGameState();
 
     void SelectSquare(int2 selected);
-    int numPossibleMoves=0;
+
+    int numPossibleMoves = 0;
 
     std::shared_ptr<move[]> possibleMoves;
 
@@ -74,16 +77,18 @@ protected:
 
     std::shared_ptr<move[]> GetMovesFromVectors(int2 position, int2 moveVectors[], int numMoveVectors);
 
-    short int getDistanceInDirection(int2 position, int2 moveVector, bool isPieceWhite);
+    short int getDistanceInDirection(int2 position, int2 moveVector, bool isPieceWhite, boardGrid board_ = nullptr);
+
     static bool isOnBoard(int2 pos);
 
-    static void addRouteToArray(const std::shared_ptr<move[]>& moveArray, int startIndex, int numToAdd, int2 moveVector, int2 position);
+    void addRouteToArray(const std::shared_ptr<move[]> &moveArray, int startIndex, int numToAdd, int2 moveVector,
+                         int2 position);
 
     boardGrid GetTemporaryMove(move nextMove);
 
     bool isCheck(move moveToCheck, bool isPieceWhite);
 
-
+    int addingRoutesOffset = 0;
 };
 
 

@@ -104,7 +104,7 @@ void Graphics::highlightSquare(int2 square)
 
 
 //a method to add a texture to the dictionary as a smart pointer
-void Graphics::loadTextureToDict(const std::string& key, const char *fileLocation)
+void Graphics::loadTextureToDict(const std::string &key, const char *fileLocation)
 {
     SDL_Texture *text = IMG_LoadTexture(renderer, fileLocation);
     std::shared_ptr<SDL_Texture> textsmart(text, SDLTextureDeleter());
@@ -168,7 +168,7 @@ void Graphics::updateSize(int w, int h)
 }
 
 //a method to render a game state represented in an array of strings, where each element corresponds to one square, from the top left to right top to bottom.
-void Graphics::renderGame(const Gamestate::boardGrid& board)
+void Graphics::renderGame(const Gamestate::boardGrid &board)
 {
     renderBoard();
     for (int h = 0; h < 8; h++)
@@ -177,13 +177,14 @@ void Graphics::renderGame(const Gamestate::boardGrid& board)
         {
             if (!board[h][w].pieceType.empty())
             {
-                if(board[h][w].isWhite)
+                if (board[h][w].isWhite)
                 {
-                    renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2, pieces["white"+board[h][w].pieceType].get());
-                }
-                else
+                    renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2,
+                                             pieces["white" + board[h][w].pieceType].get());
+                } else
                 {
-                    renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2, pieces["black"+board[h][w].pieceType].get());
+                    renderTextureWithPadding(w * 12.5, h * 12.5, 12.5, 12.5, 2, 2,
+                                             pieces["black" + board[h][w].pieceType].get());
                 }
             }
         }
@@ -212,11 +213,11 @@ void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float 
     SDL_RenderCopy(renderer, texture, nullptr, &rect);
 }
 
-void Graphics::highlightSquares(const std::shared_ptr<int2[]>& highlighted, int size)
+void Graphics::highlightSquares(const std::shared_ptr<int2[]> &highlighted, int size)
 {
-    if(highlighted == nullptr)
+    if (highlighted == nullptr || size <= 0)
         return;
-    for(int i=0; i<size; i++)
+    for (int i = 0; i < size; i++)
     {
         highlightSquare(highlighted[i]);
     }
