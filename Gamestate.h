@@ -58,6 +58,10 @@ public:
 
     std::shared_ptr<int2[]> GetSquaresToHighlight();
 
+    void LoadGame(const std::string& filename);
+
+    void SaveGame(const std::string& filename);
+
 protected:
     bool isWhite;
     boardGrid board;
@@ -88,7 +92,9 @@ protected:
 
     bool isCheck(move moveToCheck, bool isPieceWhite);
 
+
     int addingRoutesOffset = 0;
+
 };
 
 

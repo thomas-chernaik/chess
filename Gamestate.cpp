@@ -3,6 +3,7 @@
 //
 
 #include "Gamestate.h"
+#include <fstream>
 
 Gamestate::Gamestate(const Gamestate::boardGrid &board_, bool white) : isWhite(white)
 {
@@ -757,4 +758,190 @@ std::shared_ptr<move[]> Gamestate::GetPawnMoves(int2 position)
         numPossibleMoves = count;
         return moves;
     }
+}
+
+//load a board in forsyth edwards notation to the game board
+void Gamestate::LoadGame(const std::string& filename)
+{
+    //load the file to a string
+    std::string line;
+    std::ifstream myfile(filename);
+    char sym;
+    int count = 0;
+    if (myfile.is_open())
+    {
+        getline(myfile, line);
+        myfile.close();
+    }
+    for (int row = 0; row < 8; row++)
+    {
+        int col = 0;
+        do
+        {
+            sym = line[count++];
+            if (sym == 'r')
+            {
+                board[row][col].pieceType = "rook";
+                board[row][col].isWhite = false;
+                col++;
+            } else if (sym == 'b')
+            {
+                board[row][col].pieceType = "bishop";
+                board[row][col].isWhite = false;
+                col++;
+            } else if (sym == 'n')
+            {
+                board[row][col].pieceType = "knight";
+                board[row][col].isWhite = false;
+                col++;
+            } else if (sym == 'q')
+            {
+                board[row][col].pieceType = "queen";
+                board[row][col].isWhite = false;
+                col++;
+            } else if (sym == 'k')
+            {
+                board[row][col].pieceType = "king";
+                board[row][col].isWhite = false;
+                col++;
+            } else if (sym == 'p')
+            {
+                board[row][col].pieceType = "pawn";
+                board[row][col].isWhite = false;
+                col++;
+            } else if (sym == 'R')
+            {
+                board[row][col].pieceType = "rook";
+                board[row][col].isWhite = true;
+                col++;
+            } else if (sym == 'B')
+            {
+                board[row][col].pieceType = "bishop";
+                board[row][col].isWhite = true;
+                col++;
+            } else if (sym == 'N')
+            {
+                board[row][col].pieceType = "knight";
+                board[row][col].isWhite = true;
+                col++;
+            } else if (sym == 'Q')
+            {
+                board[row][col].pieceType = "queen";
+                board[row][col].isWhite = true;
+                col++;
+            } else if (sym == 'K')
+            {
+                board[row][col].pieceType = "king";
+                board[row][col].isWhite = true;
+                col++;
+            } else if (sym == 'P')
+            {
+                board[row][col].pieceType = "pawn";
+                board[row][col].isWhite = true;
+                col++;
+            } else if (sym >= 49 && sym <= 57)
+            {
+                for (int i = 0; i < sym - 48; i++)
+                {
+                    board[row][col].pieceType = "empty";
+                    col++;
+                }
+            }
+        } while (sym != '/' && sym != ' ');
+    }
+    sym = line[count];
+    if (sym == 'b')
+        isWhite = false;
+    else if (sym == 'w')
+        isWhite = true;
+    else
+        throw std::domain_error("this file contains unexpected characters");
+}
+
+
+//save the current board to a file using forsyth edwards notation
+void Gamestate::SaveGame(const std::string& filename)
+{
+    //set up the filestream
+    std::ofstream myfile;
+    myfile.open(filename);
+    //set up a counter to count empty spaces
+    int counter = 0;
+    for (int h = 0; h < 8; h++)
+    {
+        for (int w = 0; w < 8; w++)
+        {
+            //if the space is empty then we just need to count it up
+            if (board[h][w].pieceType == "empty")
+            {
+                counter++;
+            } else
+            {
+                //add the empty spaces on
+                if (counter)
+                {
+                    myfile << counter;
+                    counter = 0;
+                }
+                //add this piece on
+                if (board[h][w].isWhite)
+                {
+                    if (board[h][w].pieceType == "rook")
+                    {
+                        myfile << "R";
+                    } else if (board[h][w].pieceType == "bishop")
+                    {
+                        myfile << "B";
+                    } else if (board[h][w].pieceType == "knight")
+                    {
+                        myfile << "N";
+                    } else if (board[h][w].pieceType == "king")
+                    {
+                        myfile << "K";
+                    } else if (board[h][w].pieceType == "queen")
+                    {
+                        myfile << "Q";
+                    } else if (board[h][w].pieceType == "pawn")
+                    {
+                        myfile << "P";
+                    }
+                } else
+                {
+                    if (board[h][w].pieceType == "rook")
+                    {
+                        myfile << "r";
+                    } else if (board[h][w].pieceType == "bishop")
+                    {
+                        myfile << "b";
+                    } else if (board[h][w].pieceType == "knight")
+                    {
+                        myfile << "n";
+                    } else if (board[h][w].pieceType == "king")
+                    {
+                        myfile << "k";
+                    } else if (board[h][w].pieceType == "queen")
+                    {
+                        myfile << "q";
+                    } else if (board[h][w].pieceType == "pawn")
+                    {
+                        myfile << "p";
+                    }
+                }
+
+
+            }
+        }
+        if (counter)
+        {
+            myfile << counter;
+            counter = 0;
+        }
+        if (h != 7)
+            myfile << "/";
+    }
+    if (isWhite)
+        myfile << " w";
+    else
+        myfile << " b";
+    myfile.close();
 }

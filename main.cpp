@@ -4,8 +4,6 @@
 int main()
 {
     auto *gamestate = new Gamestate();
-
-
     auto *g = new Graphics(800, 800);
     g->renderGame(gamestate->DisplayState());
     g->display();
@@ -47,7 +45,24 @@ int main()
 
 
             }
+            else if (event.type == SDL_KEYUP)
+            {
+                if(event.key.keysym.sym == 's')
+                {
+                    gamestate->SaveGame("dumpFile.fen");
+
+                }
+                if(event.key.keysym.sym == 'l')
+                {
+                    std::cout << "hey";
+                    gamestate->LoadGame("dumpFile.fen");
+                    g->renderGame(gamestate->DisplayState());
+                    g->highlightSquares(gamestate->GetSquaresToHighlight(), gamestate->numPossibleMoves);
+                    g->display();
+                }
+            }
         }
+        SDL_Delay(10);
     }
     delete (g);
     return 0;
