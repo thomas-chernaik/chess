@@ -20,6 +20,8 @@ struct int2
     int b = 0;
 
     inline bool operator==(const int2 &rhs);
+    inline int2 operator+(const int2 &rhs);
+    inline int2 operator*(const int &rhs);
 };
 
 struct move
@@ -79,7 +81,11 @@ protected:
     std::shared_ptr<move[]> GetQueenMoves(int2 position);
 
     std::shared_ptr<move[]> GetKingMoves(int2 position);
+
+    int getDistanceInDirection(int2 position, int2 moveVector, bool isWhite);
     bool isOnBoard(int2 pos);
+
+    void addRouteToArray(std::shared_ptr<move[]> moveArray, int startIndex, int numToAdd, int2 moveVector, int2 position);
 
 };
 
