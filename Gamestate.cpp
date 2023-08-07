@@ -109,11 +109,10 @@ std::shared_ptr<int2[]> Gamestate::GetSquaresToHighlight()
         highlighted = std::shared_ptr<int2[]>(new int2[0]{});
         return highlighted;
     }
-    highlighted = std::shared_ptr<int2[]>(new int2[numPossibleMoves + 1]);
-    highlighted[0] = selectedSquare;
-    for (int i = 1; i < numPossibleMoves + 1; i++)
+    highlighted = std::shared_ptr<int2[]>(new int2[numPossibleMoves]);
+    for (int i = 0; i < numPossibleMoves ; i++)
     {
-        highlighted[i] = possibleMoves[i - 1].newPosition;
+        highlighted[i] = possibleMoves[i].newPosition;
     };
     return highlighted;
 }
@@ -193,7 +192,7 @@ void Gamestate::GeneratePossibleMoves()
         possibleMoves = GetKnightMoves(selectedSquare);
     } else if (selectedPieceType == "king")
     {
-        //possibleMoves = GetKingMoves(selectedSquare);
+        possibleMoves = GetKingMoves(selectedSquare);
     } else if (selectedPieceType == "queen")
     {
         possibleMoves = GetQueenMoves(selectedSquare);
@@ -211,7 +210,6 @@ bool Gamestate::isOnBoard(int2 pos)
 std::shared_ptr<move[]> Gamestate::GetKnightMoves(int2 position)
 {
     //there are 8 possible knight moves
-    //I am putting these into hard variables to avoid the processing of dynamic memory allocation.
     bool isPieceWhite = board[position.b][position.a].isWhite;
     bool knightMoves[8] = {false, false, false, false, false, false, false, false};
     int2 moveVectors[8] = {
@@ -281,48 +279,94 @@ int Gamestate::getDistanceInDirection(int2 position, int2 moveVector, bool isWhi
     return count;
 }
 
+
+std::shared_ptr<move[]> Gamestate::GetMovesFromVectors(int2 position, int2 *moveVectors, int numMoveVectors)
+{
+    bool isPieceWhite = board[position.b][position.a].isWhite;
+    std::unique_ptr<short int[]> moveAmounts(new short int[numMoveVectors]);
+    numPossibleMoves = 0;
+    for(int i=0; i<numMoveVectors; i++)
+    {
+        moveAmounts[i] = getDistanceInDirection(position, moveVectors[i], isPieceWhite);
+        numPossibleMoves += moveAmounts[i];
+    }
+    if(numPossibleMoves==0)
+    {
+        return nullptr;
+    }
+    std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
+    int previouslyAdded = 0;
+    for(int i=0; i<numMoveVectors; i++)
+    {
+        addRouteToArray(moves, previouslyAdded, moveAmounts[i], moveVectors[i], position);
+        previouslyAdded += moveAmounts[i];
+    }
+    return moves;
+}
+
 std::shared_ptr<move[]> Gamestate::GetBishopMoves(int2 position)
 {
-    //a bishop  can move it can move diagnoally until it reaches the edge or a piece
-    bool isPieceWhite = board[position.b][position.a].isWhite;
-    short int northEast = getDistanceInDirection(position, int2(1, 1), isPieceWhite);
-    short int northWest = getDistanceInDirection(position, int2(-1, 1), isPieceWhite);
-    short int southEast = getDistanceInDirection(position, int2(1, -1), isPieceWhite);
-    short int southWest = getDistanceInDirection(position, int2(-1, -1), isPieceWhite);
-    numPossibleMoves = southWest + southEast + northWest + northEast;
-    if (numPossibleMoves == 0)
-        return nullptr;
-    std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
-    addRouteToArray(moves, 0, northEast, int2(1, 1), position);
-    addRouteToArray(moves, northEast, northWest, int2(-1, 1), position);
-    addRouteToArray(moves, northEast + northWest, southWest, int2(-1, -1), position);
-    addRouteToArray(moves, northEast + northWest + southWest, southEast, int2(1, -1), position);
-    return moves;
+    int2 moveVectors[] = {
+            int2(1,1),
+            int2(1,-1),
+            int2(-1,-1),
+            int2(-1,1)
+    };
+    return GetMovesFromVectors(position, moveVectors, 4);
 }
 
 std::shared_ptr<move[]> Gamestate::GetQueenMoves(int2 position)
 {
+    int2 moveVectors[] = {
+            int2(1,1),
+            int2(1,-1),
+            int2(-1,-1),
+            int2(-1,1),
+            int2(0,1),
+            int2(0,-1),
+            int2(-1,0),
+            int2(1,0)
+    };
+    return GetMovesFromVectors(position, moveVectors, 8);
+}
+
+std::shared_ptr<move[]> Gamestate::GetKingMoves(int2 position)
+{
     bool isPieceWhite = board[position.b][position.a].isWhite;
-    //our queen can do everything a bishop and rook can
-    short int northEast = getDistanceInDirection(position, int2(1, 1), isPieceWhite);
-    short int northWest = getDistanceInDirection(position, int2(-1, 1), isPieceWhite);
-    short int southEast = getDistanceInDirection(position, int2(1, -1), isPieceWhite);
-    short int southWest = getDistanceInDirection(position, int2(-1, -1), isPieceWhite);
-    short int up = getDistanceInDirection(position, int2(0, 1), isPieceWhite);
-    short int down = getDistanceInDirection(position, int2(0, -1), isPieceWhite);
-    short int left = getDistanceInDirection(position, int2(-1, 0), isPieceWhite);
-    short int right = getDistanceInDirection(position, int2(1, 0), isPieceWhite);
-    numPossibleMoves = northEast + northWest + southEast + southWest + up + down + left + right;
+    int2 moveVectors[] = {int2(0, 1),
+                          int2(1, 0),
+                          int2(1, 1),
+                          int2(0, -1),
+                          int2(-1, 0),
+                          int2(-1, -1),
+                          int2(-1, 1),
+                          int2(1, -1)};
+    bool kingMoves[] = {false, false, false, false, false, false, false, false};
+    numPossibleMoves = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        int2 movePos = moveVectors[i] + position;
+        if (isOnBoard(movePos))
+        {
+            if (board[movePos.b][movePos.a].isWhite != isPieceWhite || board[movePos.b][movePos.a].pieceType == "empty")
+            {
+                kingMoves[i] = true;
+                numPossibleMoves++;
+            }
+        }
+    }
+    if (numPossibleMoves == 0)
+        return nullptr;
     std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
-    addRouteToArray(moves, 0, northEast, int2(1, 1), position);
-    addRouteToArray(moves, northEast, northWest, int2(-1, 1), position);
-    addRouteToArray(moves, northEast + northWest, southWest, int2(-1, -1), position);
-    addRouteToArray(moves, northEast + northWest + southWest, southEast, int2(1, -1), position);
-    addRouteToArray(moves, northEast + northWest + southWest + southEast, up, int2(0, 1), position);
-    addRouteToArray(moves, northEast + northWest + southWest + southEast + up, down, int2(0, -1), position);
-    addRouteToArray(moves, northEast + northWest + southWest + southEast + up + down, left, int2(-1, 0), position);
-    addRouteToArray(moves, northEast + northWest + southWest + southEast + up + down + left, right, int2(1, 0),
-                    position);
+    int count = 0;
+    for(int i=0; i<8; i++)
+    {
+        if(kingMoves[i])
+        {
+            moves[count].prevPosition = position;
+            moves[count++].newPosition = position + moveVectors[i];
+        }
+    }
     return moves;
 }
 
@@ -339,22 +383,13 @@ void Gamestate::addRouteToArray(std::shared_ptr<move[]> moveArray, int startInde
 
 std::shared_ptr<move[]> Gamestate::GetRookMoves(int2 position)
 {
-    //a rook can move horizontally or vertically until it reaches the edge, or a piece
-    //get the colour of the piece
-    bool isPieceWhite = board[position.b][position.a].isWhite;
-    short int up = getDistanceInDirection(position, int2(0, 1), isPieceWhite);
-    short int down = getDistanceInDirection(position, int2(0, -1), isPieceWhite);
-    short int left = getDistanceInDirection(position, int2(-1, 0), isPieceWhite);
-    short int right = getDistanceInDirection(position, int2(1, 0), isPieceWhite);
-    numPossibleMoves = up + down + left + right;
-    if (numPossibleMoves == 0)
-        return nullptr;
-    std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
-    addRouteToArray(moves, 0, up, int2(0, 1), position);
-    addRouteToArray(moves, up, down, int2(0, -1), position);
-    addRouteToArray(moves, up + down, left, int2(-1, 0), position);
-    addRouteToArray(moves, up + down + left, right, int2(1, 0), position);
-    return moves;
+    int2 moveVectors[] = {
+            int2(0,1),
+            int2(0,-1),
+            int2(-1,0),
+            int2(1,0)
+    };
+    return GetMovesFromVectors(position, moveVectors, 4);
 }
 
 std::shared_ptr<move[]> Gamestate::GetPawnMoves(int2 position)

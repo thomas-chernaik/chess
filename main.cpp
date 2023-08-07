@@ -29,7 +29,7 @@ int main()
                     y = g->getSquareFromMousePos(mouseX, mouseY).second;
                     gamestate->SelectSquare(int2(x, y));
                     g->renderGame(gamestate->DisplayState());
-                    g->highlightSquares(gamestate->GetSquaresToHighlight(), gamestate->numPossibleMoves+1);
+                    g->highlightSquares(gamestate->GetSquaresToHighlight(), gamestate->numPossibleMoves);
                     g->display();
                 }
             } else if (event.type == SDL_WINDOWEVENT)
@@ -41,7 +41,7 @@ int main()
                     int newSize = fmin(newHeight, newWidth);
                     g->updateSize(newSize, newSize);
                     g->renderGame(gamestate->DisplayState());
-                    g->highlightSquares(gamestate->GetSquaresToHighlight(), gamestate->numPossibleMoves+1);
+                    g->highlightSquares(gamestate->GetSquaresToHighlight(), gamestate->numPossibleMoves);
                     g->display();
                 }
 

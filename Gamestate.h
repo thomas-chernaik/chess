@@ -82,6 +82,8 @@ protected:
 
     std::shared_ptr<move[]> GetKingMoves(int2 position);
 
+    std::shared_ptr<move[]> GetMovesFromVectors(int2 position, int2 moveVectors[], int numMoveVectors);
+
     int getDistanceInDirection(int2 position, int2 moveVector, bool isWhite);
     bool isOnBoard(int2 pos);
 
