@@ -8,20 +8,15 @@
 #ifndef CHESS_GAMESTATE_H
 #define CHESS_GAMESTATE_H
 
-struct float2
-{
-    float a = 0;
-    float b = 0;
-};
 
 struct int2
 {
     int a = 0;
     int b = 0;
 
-    inline bool operator==(const int2 &rhs);
-    inline int2 operator+(const int2 &rhs);
-    inline int2 operator*(const int &rhs);
+    inline bool operator==(const int2 &rhs) const;
+    inline int2 operator+(const int2 &rhs) const;
+    inline int2 operator*(const int &rhs) const;
 };
 
 struct move
@@ -42,24 +37,19 @@ class Gamestate
 public:
     using boardGrid = std::shared_ptr<std::shared_ptr<square[]>[]>;
 
-    Gamestate(const boardGrid board_ = nullptr, bool white = true);
+    explicit Gamestate(const boardGrid& board_ = nullptr, bool white = true);
 
-    ~Gamestate();
 
     boardGrid DisplayState();
 
     void GeneratePossibleMoves();
-
-    bool IsCheck();
-
-    bool IsCheckMate();
 
     void GetNextGameState(move nextMove);
 
     void DebugGameState();
 
     void SelectSquare(int2 selected);
-    int numPossibleMoves;
+    int numPossibleMoves=0;
 
     std::shared_ptr<move[]> possibleMoves;
 
@@ -84,10 +74,15 @@ protected:
 
     std::shared_ptr<move[]> GetMovesFromVectors(int2 position, int2 moveVectors[], int numMoveVectors);
 
-    int getDistanceInDirection(int2 position, int2 moveVector, bool isWhite);
-    bool isOnBoard(int2 pos);
+    short int getDistanceInDirection(int2 position, int2 moveVector, bool isPieceWhite);
+    static bool isOnBoard(int2 pos);
 
-    void addRouteToArray(std::shared_ptr<move[]> moveArray, int startIndex, int numToAdd, int2 moveVector, int2 position);
+    static void addRouteToArray(const std::shared_ptr<move[]>& moveArray, int startIndex, int numToAdd, int2 moveVector, int2 position);
+
+    boardGrid GetTemporaryMove(move nextMove);
+
+    bool isCheck(move moveToCheck, bool isPieceWhite);
+
 
 };
 

@@ -4,7 +4,7 @@
 
 #include "Gamestate.h"
 
-Gamestate::Gamestate(Gamestate::boardGrid board_, bool white) : isWhite(white)
+Gamestate::Gamestate(const Gamestate::boardGrid& board_, bool white) : isWhite(white)
 {
     if (board_ == nullptr)
     {
@@ -60,7 +60,7 @@ Gamestate::Gamestate(Gamestate::boardGrid board_, bool white) : isWhite(white)
     {
         board = board_;
     }
-};
+}
 
 
 Gamestate::boardGrid Gamestate::DisplayState()
@@ -83,7 +83,155 @@ void Gamestate::GetNextGameState(move nextMove)
     //reset the selected piece
     numPossibleMoves = 0;
     selectedSquare = int2(-1, -1);
+}
 
+Gamestate::boardGrid Gamestate::GetTemporaryMove(move nextMove)
+{
+    //initialise the memory
+    boardGrid tempBoard = Gamestate::boardGrid(new std::shared_ptr<square[]>[8]);
+    for (int i = 0; i < 8; i++)
+    {
+        tempBoard[i] = std::shared_ptr<square[]>(new square[8]);
+    }
+    //set the board pieces to the current board
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            tempBoard[i][j].pieceType = board[i][j].pieceType;
+            tempBoard[i][j].isWhite = board[i][j].isWhite;
+        }
+    }
+    //make the move
+    tempBoard[nextMove.newPosition.b][nextMove.newPosition.a].pieceType = tempBoard[nextMove.prevPosition.b][nextMove.prevPosition.a].pieceType;
+    tempBoard[nextMove.newPosition.b][nextMove.newPosition.a].isWhite = tempBoard[nextMove.prevPosition.b][nextMove.prevPosition.a].isWhite;
+    tempBoard[nextMove.prevPosition.b][nextMove.prevPosition.a].pieceType = "empty";
+    return tempBoard;
+}
+
+bool Gamestate::isCheck(move moveToCheck, bool isPieceWhite)
+{
+    boardGrid  boardToCheck = GetTemporaryMove(moveToCheck);
+    //find the king of our colour
+    int2 kingLocation;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (boardToCheck[j][i].pieceType == "king" && boardToCheck[j][i].isWhite == isPieceWhite)
+            {
+                kingLocation = int2(i, j);
+            }
+        }
+    }
+    short int distance;
+    //check for if the king can be taken by a bishop or queen diagonally
+    distance = getDistanceInDirection(kingLocation, int2(1, 1), isPieceWhite);
+    if (boardToCheck[kingLocation.b + distance][kingLocation.a + distance].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b + distance][kingLocation.a + distance].pieceType == "queen" ||
+         boardToCheck[kingLocation.b + distance][kingLocation.a + distance].pieceType == "bishop"))
+        return true;
+    distance = getDistanceInDirection(kingLocation, int2(-1, 1), isPieceWhite);
+    if (boardToCheck[kingLocation.b + distance][kingLocation.a - distance].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b + distance][kingLocation.a - distance].pieceType == "queen" ||
+         boardToCheck[kingLocation.b + distance][kingLocation.a - distance].pieceType == "bishop"))
+        return true;
+    distance = getDistanceInDirection(kingLocation, int2(1, -1), isPieceWhite);
+    if (boardToCheck[kingLocation.b - distance][kingLocation.a + distance].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b - distance][kingLocation.a + distance].pieceType == "queen" ||
+         boardToCheck[kingLocation.b - distance][kingLocation.a + distance].pieceType == "bishop"))
+        return true;
+    distance = getDistanceInDirection(kingLocation, int2(-1, -1), isPieceWhite);
+    if (boardToCheck[kingLocation.b - distance][kingLocation.a - distance].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b - distance][kingLocation.a - distance].pieceType == "queen" ||
+         boardToCheck[kingLocation.b - distance][kingLocation.a - distance].pieceType == "bishop"))
+        return true;
+    //check for if the king can be taken by a rook or queen vertically
+    distance = getDistanceInDirection(kingLocation, int2(0, 1), isPieceWhite);
+    if (boardToCheck[kingLocation.b + distance][kingLocation.a].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b + distance][kingLocation.a].pieceType == "queen" ||
+         boardToCheck[kingLocation.b + distance][kingLocation.a].pieceType == "rook"))
+        return true;
+    distance = getDistanceInDirection(kingLocation, int2(0, -1), isPieceWhite);
+    if (boardToCheck[kingLocation.b - distance][kingLocation.a].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b - distance][kingLocation.a].pieceType == "queen" ||
+         boardToCheck[kingLocation.b - distance][kingLocation.a].pieceType == "rook"))
+        return true;
+    distance = getDistanceInDirection(kingLocation, int2(1, 0), isPieceWhite);
+    if (boardToCheck[kingLocation.b][kingLocation.a + distance].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b][kingLocation.a + distance].pieceType == "queen" ||
+         boardToCheck[kingLocation.b][kingLocation.a + distance].pieceType == "rook"))
+        return true;
+    distance = getDistanceInDirection(kingLocation, int2(-1, 0), isPieceWhite);
+    if (boardToCheck[kingLocation.b][kingLocation.a - distance].isWhite != isPieceWhite &&
+        (boardToCheck[kingLocation.b][kingLocation.a - distance].pieceType == "queen" ||
+         boardToCheck[kingLocation.b][kingLocation.a - distance].pieceType == "rook"))
+        return true;
+    //check for if the king can be taken by a king
+    if (boardToCheck[kingLocation.b][kingLocation.a + 1].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b][kingLocation.a + 1].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b][kingLocation.a - 1].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b][kingLocation.a - 1].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b - 1][kingLocation.a].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b - 1][kingLocation.a].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b + 1][kingLocation.a].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b + 1][kingLocation.a].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b - 1][kingLocation.a - 1].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b - 1][kingLocation.a - 1].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b - 1][kingLocation.a + 1].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b - 1][kingLocation.a + 1].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b + 1][kingLocation.a - 1].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b + 1][kingLocation.a - 1].pieceType == "king")
+        return true;
+    if (boardToCheck[kingLocation.b + 1][kingLocation.a + 1].isWhite != isPieceWhite &&
+        boardToCheck[kingLocation.b + 1][kingLocation.a + 1].pieceType == "king")
+        return true;
+    //check for if the king can be taken by a knight
+    int2 moveVectors[8] = {
+            int2(2, 1),
+            int2(1, 2),
+            int2(-1, 2),
+            int2(-2, 1),
+            int2(-1, -2),
+            int2(-2, -1),
+            int2(2, -1),
+            int2(1, -2)
+    };
+    for (auto moveVector : moveVectors)
+    {
+        int2 movePos = kingLocation + moveVector;
+        if (isOnBoard(movePos))
+        {
+            if (board[movePos.b][movePos.a].isWhite != isPieceWhite &&
+                board[movePos.b][movePos.a].pieceType == "knight")
+            {
+                return true;
+            }
+        }
+    }
+    //check for if the king can be taken by a pawn
+    if (isPieceWhite)
+    {
+        //the pawn will be at a lower y than us
+        return (!board[kingLocation.b - 1][kingLocation.a + 1].isWhite &&
+                board[kingLocation.b - 1][kingLocation.a + 1].pieceType == "pawn") ||
+               (!board[kingLocation.b - 1][kingLocation.a - 1].isWhite &&
+                board[kingLocation.b - 1][kingLocation.a - 1].pieceType == "pawn");
+    }
+    else
+    {
+        //the pawn will be at a higher y than us
+        return (board[kingLocation.b + 1][kingLocation.a + 1].isWhite &&
+                board[kingLocation.b + 1][kingLocation.a + 1].pieceType == "pawn") ||
+               (board[kingLocation.b + 1][kingLocation.a - 1].isWhite &&
+                board[kingLocation.b + 1][kingLocation.a - 1].pieceType == "pawn");
+    }
 }
 
 void Gamestate::DebugGameState()
@@ -110,24 +258,24 @@ std::shared_ptr<int2[]> Gamestate::GetSquaresToHighlight()
         return highlighted;
     }
     highlighted = std::shared_ptr<int2[]>(new int2[numPossibleMoves]);
-    for (int i = 0; i < numPossibleMoves ; i++)
+    for (int i = 0; i < numPossibleMoves; i++)
     {
         highlighted[i] = possibleMoves[i].newPosition;
-    };
+    }
     return highlighted;
 }
 
-bool int2::operator==(const int2 &rhs)
+bool int2::operator==(const int2 &rhs) const
 {
     return a == rhs.a && b == rhs.b;
 }
 
-int2 int2::operator+(const int2 &rhs)
+int2 int2::operator+(const int2 &rhs) const
 {
     return int2(a + rhs.a, b + rhs.b);
 }
 
-int2 int2::operator*(const int &rhs)
+int2 int2::operator*(const int &rhs) const
 {
     return int2(a * rhs, b * rhs);
 }
@@ -251,9 +399,9 @@ std::shared_ptr<move[]> Gamestate::GetKnightMoves(int2 position)
     return moves;
 }
 
-int Gamestate::getDistanceInDirection(int2 position, int2 moveVector, bool isWhite)
+short int Gamestate::getDistanceInDirection(int2 position, int2 moveVector, bool isPieceWhite)
 {
-    int count = 0;
+    short int count = 0;
     for (int i = 1; i < 8; i++)
     {
         if (isOnBoard(position + moveVector * i))
@@ -264,7 +412,7 @@ int Gamestate::getDistanceInDirection(int2 position, int2 moveVector, bool isWhi
                 //check if we can move up to take a piece
             else
             {
-                if (board[position.b + (i * moveVector.b)][position.a + (i * moveVector.a)].isWhite != isWhite)
+                if (board[position.b + (i * moveVector.b)][position.a + (i * moveVector.a)].isWhite != isPieceWhite)
                 {
                     count += 1;
                 }
@@ -285,18 +433,18 @@ std::shared_ptr<move[]> Gamestate::GetMovesFromVectors(int2 position, int2 *move
     bool isPieceWhite = board[position.b][position.a].isWhite;
     std::unique_ptr<short int[]> moveAmounts(new short int[numMoveVectors]);
     numPossibleMoves = 0;
-    for(int i=0; i<numMoveVectors; i++)
+    for (int i = 0; i < numMoveVectors; i++)
     {
         moveAmounts[i] = getDistanceInDirection(position, moveVectors[i], isPieceWhite);
         numPossibleMoves += moveAmounts[i];
     }
-    if(numPossibleMoves==0)
+    if (numPossibleMoves == 0)
     {
         return nullptr;
     }
     std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
     int previouslyAdded = 0;
-    for(int i=0; i<numMoveVectors; i++)
+    for (int i = 0; i < numMoveVectors; i++)
     {
         addRouteToArray(moves, previouslyAdded, moveAmounts[i], moveVectors[i], position);
         previouslyAdded += moveAmounts[i];
@@ -307,10 +455,10 @@ std::shared_ptr<move[]> Gamestate::GetMovesFromVectors(int2 position, int2 *move
 std::shared_ptr<move[]> Gamestate::GetBishopMoves(int2 position)
 {
     int2 moveVectors[] = {
-            int2(1,1),
-            int2(1,-1),
-            int2(-1,-1),
-            int2(-1,1)
+            int2(1, 1),
+            int2(1, -1),
+            int2(-1, -1),
+            int2(-1, 1)
     };
     return GetMovesFromVectors(position, moveVectors, 4);
 }
@@ -318,14 +466,14 @@ std::shared_ptr<move[]> Gamestate::GetBishopMoves(int2 position)
 std::shared_ptr<move[]> Gamestate::GetQueenMoves(int2 position)
 {
     int2 moveVectors[] = {
-            int2(1,1),
-            int2(1,-1),
-            int2(-1,-1),
-            int2(-1,1),
-            int2(0,1),
-            int2(0,-1),
-            int2(-1,0),
-            int2(1,0)
+            int2(1, 1),
+            int2(1, -1),
+            int2(-1, -1),
+            int2(-1, 1),
+            int2(0, 1),
+            int2(0, -1),
+            int2(-1, 0),
+            int2(1, 0)
     };
     return GetMovesFromVectors(position, moveVectors, 8);
 }
@@ -359,9 +507,9 @@ std::shared_ptr<move[]> Gamestate::GetKingMoves(int2 position)
         return nullptr;
     std::shared_ptr<move[]> moves = std::shared_ptr<move[]>(new move[numPossibleMoves]);
     int count = 0;
-    for(int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
     {
-        if(kingMoves[i])
+        if (kingMoves[i])
         {
             moves[count].prevPosition = position;
             moves[count++].newPosition = position + moveVectors[i];
@@ -370,7 +518,7 @@ std::shared_ptr<move[]> Gamestate::GetKingMoves(int2 position)
     return moves;
 }
 
-void Gamestate::addRouteToArray(std::shared_ptr<move[]> moveArray, int startIndex, int numToAdd, int2 moveVector,
+void Gamestate::addRouteToArray(const std::shared_ptr<move[]>& moveArray, int startIndex, int numToAdd, int2 moveVector,
                                 int2 position)
 {
     for (int i = 0; i < numToAdd; i++)
@@ -384,10 +532,10 @@ void Gamestate::addRouteToArray(std::shared_ptr<move[]> moveArray, int startInde
 std::shared_ptr<move[]> Gamestate::GetRookMoves(int2 position)
 {
     int2 moveVectors[] = {
-            int2(0,1),
-            int2(0,-1),
-            int2(-1,0),
-            int2(1,0)
+            int2(0, 1),
+            int2(0, -1),
+            int2(-1, 0),
+            int2(1, 0)
     };
     return GetMovesFromVectors(position, moveVectors, 4);
 }

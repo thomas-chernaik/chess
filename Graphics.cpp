@@ -71,8 +71,8 @@ void Graphics::display()
 //a method to render an empty chess board
 void Graphics::renderBoard()
 {
-    Colour whiteColour = Colour(230, 175, 175);
-    Colour blackColour = Colour(150, 50, 50);
+    auto whiteColour = Colour(230, 175, 175);
+    auto blackColour = Colour(150, 50, 50);
     float anEighth = 12.5;
     //chess board is 8x8, so we need to render 64 squares in a grid.
     bool isWhite = true;
@@ -88,10 +88,10 @@ void Graphics::renderBoard()
         }
         isWhite = !isWhite;
     }
-};
+}
 
 //a method to get the square on the chess board from the mouse coord
-std::pair<int, int> Graphics::getSquareFromMousePos(int mouseX, int mouseY)
+std::pair<int, int> Graphics::getSquareFromMousePos(int mouseX, int mouseY) const
 {
     return std::make_pair(8 * mouseX / width, 8 * mouseY / height);
 }
@@ -104,7 +104,7 @@ void Graphics::highlightSquare(int2 square)
 
 
 //a method to add a texture to the dictionary as a smart pointer
-void Graphics::loadTextureToDict(std::string key, const char *fileLocation)
+void Graphics::loadTextureToDict(const std::string& key, const char *fileLocation)
 {
     SDL_Texture *text = IMG_LoadTexture(renderer, fileLocation);
     std::shared_ptr<SDL_Texture> textsmart(text, SDLTextureDeleter());
@@ -168,14 +168,14 @@ void Graphics::updateSize(int w, int h)
 }
 
 //a method to render a game state represented in an array of strings, where each element corresponds to one square, from the top left to right top to bottom.
-void Graphics::renderGame(Gamestate::boardGrid board)
+void Graphics::renderGame(const Gamestate::boardGrid& board)
 {
     renderBoard();
     for (int h = 0; h < 8; h++)
     {
         for (int w = 0; w < 8; w++)
         {
-            if (board[h][w].pieceType != "")
+            if (!board[h][w].pieceType.empty())
             {
                 if(board[h][w].isWhite)
                 {
@@ -209,10 +209,10 @@ void Graphics::renderTextureWithPadding(float xPosition, float yPosition, float 
     SDL_Rect rect(ceil(xPosition + xPadding), ceil(yPosition + yPadding), ceil(xScale - 2 * xPadding),
                   ceil(yScale - 2 * yPadding));
     //render the texture in the rectangle
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
 }
 
-void Graphics::highlightSquares(std::shared_ptr<int2[]> highlighted, int size)
+void Graphics::highlightSquares(const std::shared_ptr<int2[]>& highlighted, int size)
 {
     if(highlighted == nullptr)
         return;

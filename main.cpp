@@ -3,10 +3,10 @@
 
 int main()
 {
-    Gamestate *gamestate = new Gamestate();
+    auto *gamestate = new Gamestate();
 
 
-    Graphics *g = new Graphics(800, 800);
+    auto *g = new Graphics(800, 800);
     g->renderGame(gamestate->DisplayState());
     g->display();
     SDL_Event event;

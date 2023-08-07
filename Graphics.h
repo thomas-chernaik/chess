@@ -67,17 +67,17 @@ public:
 
     void display();
 
-    void renderGame(Gamestate::boardGrid board);
+    void renderGame(const Gamestate::boardGrid& board);
 
     void renderBoard();
 
     void highlightSquare(int2 square);
 
-    void highlightSquares(std::shared_ptr<int2[]> highlighted, int size);
+    void highlightSquares(const std::shared_ptr<int2[]>& highlighted, int size);
 
     void updateSize(int w, int h);
 
-    std::pair<int, int> getSquareFromMousePos(int mouseX, int mouseY);
+    std::pair<int, int> getSquareFromMousePos(int mouseX, int mouseY) const;
 
 protected:
     SDL_Window *window{};
@@ -95,7 +95,7 @@ protected:
     int height;
     int width;
 
-    void loadTextureToDict(std::string key, const char *fileLocation);
+    void loadTextureToDict(const std::string& key, const char *fileLocation);
 
 };
 
